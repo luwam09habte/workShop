@@ -38,7 +38,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(User login)
+    public async Task<IActionResult> Login(LoginDto login)
     {
         
         var user = await _userService.GetUserByUsername(login.Email);
@@ -46,5 +46,11 @@ public class UserController : ControllerBase
             return Unauthorized("Invalid credentials");
 
         return Ok(new { user.Email });
+    }
+    
+    public class LoginDto
+    {
+        public string Email        { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty;
     }
 }
