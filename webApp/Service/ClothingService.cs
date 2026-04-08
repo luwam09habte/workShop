@@ -1,3 +1,4 @@
+using webApp.Model;
 using MongoDB.Driver;
 
 namespace webApp.Service;
