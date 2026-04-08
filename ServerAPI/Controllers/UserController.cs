@@ -17,7 +17,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Register(User user)
     {
         // Check eksisterende brugernavn
-        var existing = await _userService.GetUserByUsername(user.Username);
+        var existing = await _userService.GetUserByUsername(user.Email);
         if (existing != null)
             return BadRequest("Username already exists");
 
@@ -43,10 +43,10 @@ public class UserController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(User login)
     {
-        var user = await _userService.GetUserByUsername(login.Username);
+        var user = await _userService.GetUserByUsername(login.Email);
         if (user == null || !BCrypt.Net.BCrypt.Verify(login.PasswordHash, user.PasswordHash))
             return Unauthorized("Invalid credentials");
 
-        return Ok(new { user.Id, user.Username });
+        return Ok(new { user.Id, user.Email });
     }
 }
