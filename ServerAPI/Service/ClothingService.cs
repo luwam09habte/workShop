@@ -1,7 +1,7 @@
-using webApp.Model;
+using Core.Model;
 using MongoDB.Driver;
 
-namespace webApp.Service;
+namespace ServerAPI.Service;
 
 
 public class ClothingService

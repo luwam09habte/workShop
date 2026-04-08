@@ -1,4 +1,4 @@
-namespace webApp.Model;
+namespace Core.Model;
 
 public class Clothing
 {
