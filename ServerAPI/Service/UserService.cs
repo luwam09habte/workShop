@@ -21,6 +21,6 @@ public class UserService
     }
     public async Task<User> GetUserByUsername(string username)
     {
-        return await _users.Find(u => u.Username == username).FirstOrDefaultAsync(); 
+        return await _users.Find(u => u.Email == username).FirstOrDefaultAsync(); 
     }
 }
