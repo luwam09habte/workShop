@@ -3,6 +3,8 @@ using MongoDB.Driver;
 
 namespace ServerAPI.Service;
 
+// ændre så at man kan se de tilgængelige stykker tøj
+
 
 public class ClothingService
 {
@@ -15,14 +17,32 @@ public class ClothingService
 
         _clothing = database.GetCollection<Clothing>("Clothing");
     }
-
     public async Task CreateClothing(Clothing item)
     {
         await _clothing.InsertOneAsync(item);
     }
 
-    public async Task<List<Clothing>> GetAllClothing()
+    
+    
+    
+    
+    
+    public async Task<List<Clothing>> GetAvailableClothes() =>
+        await _clothing.Find(c => c.Status == "available").ToListAsync();
+
+    public async Task<Clothing> GetClothingById(string id) =>
+        await _clothing.Find(c => c.Clothe_id == id).FirstOrDefaultAsync();
+
+    public async Task<bool> LoanClothing(string clothingId, string userId)
     {
-        return await _clothing.Find(_ => true).ToListAsync();
+        var clothing = await GetClothingById(clothingId);
+        if (clothing == null || clothing.Status != "available") return false;
+
+        clothing.Status = "loaned";
+        clothing.Owner_id = userId;
+
+        var filter = Builders<Clothing>.Filter.Eq(c => c.Clothe_id, clothingId);
+        await _clothing.ReplaceOneAsync(filter, clothing);
+        return true;
     }
 }
