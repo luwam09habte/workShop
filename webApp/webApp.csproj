@@ -12,5 +12,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.2" PrivateAssets="all"/>
         <PackageReference Include="MongoDB.Driver" Version="3.7.1" />
     </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Core\Core.csproj" />
+    </ItemGroup>
 
 </Project>
