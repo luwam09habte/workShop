@@ -33,9 +33,6 @@ public class UserController : ControllerBase
             return BadRequest("Email must contain '@' and end with .dk or .com");
         }
 
-        // Hash password
-        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
-
         await _userService.CreateUser(user);
         return Ok("User created");
     }
@@ -44,7 +41,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Login(User login)
     {
         var user = await _userService.GetUserByUsername(login.Email);
-        if (user == null || !BCrypt.Net.BCrypt.Verify(login.PasswordHash, user.PasswordHash))
+        if (user == null || user.PasswordHash != login.PasswordHash)
             return Unauthorized("Invalid credentials");
 
         return Ok(new { user.Id, user.Email });
