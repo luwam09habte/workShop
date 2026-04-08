@@ -40,10 +40,11 @@ public class UserController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(User login)
     {
+        
         var user = await _userService.GetUserByUsername(login.Email);
         if (user == null || user.PasswordHash != login.PasswordHash)
             return Unauthorized("Invalid credentials");
 
-        return Ok(new { user.Id, user.Email });
+        return Ok(new { user.Email });
     }
 }
