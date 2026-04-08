@@ -30,7 +30,6 @@
         grid-template-columns: 480px 1fr;
     }
 
-    /* ── Left form panel ── */
     .panel-left {
         display: flex;
         flex-direction: column;
@@ -60,9 +59,10 @@
         animation: rise .8s cubic-bezier(.16,1,.3,1) forwards;
     }
     .field-group:nth-child(1) { animation-delay: .35s; }
-    .field-group:nth-child(2) { animation-delay: .45s; }
-    .field-group:nth-child(3) { animation-delay: .55s; }
-    .field-group:nth-child(4) { animation-delay: .65s; }
+    .field-group:nth-child(2) { animation-delay: .42s; }
+    .field-group:nth-child(3) { animation-delay: .49s; }
+    .field-group:nth-child(4) { animation-delay: .56s; }
+    .field-group:nth-child(5) { animation-delay: .63s; }
 
     .field-group label {
         display: block;
@@ -177,7 +177,6 @@
         border-bottom: 1px solid var(--ink);
     }
 
-    /* ── Right brand panel ── */
     .panel-right {
         background: var(--ink);
         display: flex;
@@ -241,7 +240,6 @@
 
 <div class="page">
 
-    <!-- Left: form -->
     <div class="panel-left">
 
         <div class="form-header">
@@ -253,7 +251,6 @@
         {
             <div class="alert-error" role="alert">@errorMessage</div>
         }
-
         @if (!string.IsNullOrEmpty(successMessage))
         {
             <div class="alert-success" role="status">@successMessage</div>
@@ -263,13 +260,10 @@
 
             <div class="field-group">
                 <label for="email">Email address</label>
-                <input id="email"
-                       type="email"
-                       autocomplete="email"
+                <input id="email" type="email" autocomplete="email"
                        placeholder="you@example.com"
                        class="@(showErrors && string.IsNullOrWhiteSpace(email) ? "invalid" : "")"
-                       @bind="email"
-                       @bind:event="oninput" />
+                       @bind="email" @bind:event="oninput" />
                 @if (showErrors && string.IsNullOrWhiteSpace(email))
                 {
                     <span class="field-error">Email is required.</span>
@@ -277,14 +271,23 @@
             </div>
 
             <div class="field-group">
+                <label for="phone">Phone number</label>
+                <input id="phone" type="tel" autocomplete="tel"
+                       placeholder="8 digits"
+                       class="@(showErrors && !IsValidPhone(phoneNumber) ? "invalid" : "")"
+                       @bind="phoneNumber" @bind:event="oninput" />
+                @if (showErrors && !IsValidPhone(phoneNumber))
+                {
+                    <span class="field-error">Phone number must be exactly 8 digits.</span>
+                }
+            </div>
+
+            <div class="field-group">
                 <label for="password">Password</label>
-                <input id="password"
-                       type="password"
-                       autocomplete="new-password"
+                <input id="password" type="password" autocomplete="new-password"
                        placeholder="At least 6 characters"
                        class="@(showErrors && password.Length < 6 ? "invalid" : "")"
-                       @bind="password"
-                       @bind:event="oninput" />
+                       @bind="password" @bind:event="oninput" />
                 @if (showErrors && password.Length < 6)
                 {
                     <span class="field-error">Password must be at least 6 characters.</span>
@@ -293,20 +296,17 @@
 
             <div class="field-group">
                 <label for="confirmPassword">Confirm password</label>
-                <input id="confirmPassword"
-                       type="password"
-                       autocomplete="new-password"
+                <input id="confirmPassword" type="password" autocomplete="new-password"
                        placeholder="••••••••"
                        class="@(showErrors && confirmPassword != password ? "invalid" : "")"
-                       @bind="confirmPassword"
-                       @bind:event="oninput" />
+                       @bind="confirmPassword" @bind:event="oninput" />
                 @if (showErrors && confirmPassword != password)
                 {
                     <span class="field-error">Passwords do not match.</span>
                 }
             </div>
 
-            <div class="field-group" style="animation-delay:.65s">
+            <div class="field-group" style="animation-delay:.7s">
                 <button class="btn-register" @onclick="HandleRegister" disabled="@isLoading">
                     <span>@(isLoading ? "Creating account…" : "Create account")</span>
                 </button>
@@ -321,7 +321,6 @@
         </div>
     </div>
 
-    <!-- Right: brand -->
     <div class="panel-right">
         <div class="deco deco-1"></div>
         <div class="deco deco-2"></div>
@@ -334,6 +333,7 @@
 
 @code {
     private string email           = string.Empty;
+    private string phoneNumber     = string.Empty;
     private string password        = string.Empty;
     private string confirmPassword = string.Empty;
     private string errorMessage    = string.Empty;
@@ -341,12 +341,16 @@
     private bool   isLoading       = false;
     private bool   showErrors      = false;
 
-    // Matches Core.Model.User — add/remove fields to suit your model
-    private class CreateUserDto
+    // Matches Core.Model.User
+    private class RegisterDto
     {
-        public string Email    { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        public string Email        { get; set; } = string.Empty;
+        public string PhoneNumber  { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty; // field name matches User model
     }
+
+    private bool IsValidPhone(string phone) =>
+        !string.IsNullOrEmpty(phone) && phone.Length == 8 && phone.All(char.IsDigit);
 
     private async Task HandleRegister()
     {
@@ -354,8 +358,8 @@
         errorMessage  = string.Empty;
         successMessage = string.Empty;
 
-        // Client-side validation
         if (string.IsNullOrWhiteSpace(email) ||
+            !IsValidPhone(phoneNumber) ||
             password.Length < 6 ||
             confirmPassword != password)
             return;
@@ -364,12 +368,12 @@
 
         try
         {
-            // Calls POST http://localhost:5168/api/User
-            // Adjust the route to match your UserController
-            var response = await Http.PostAsJsonAsync("api/User", new CreateUserDto
+            // POST api/User/register — matches [HttpPost("register")] in UserController
+            var response = await Http.PostAsJsonAsync("api/User/register", new RegisterDto
             {
-                Email    = email,
-                Password = password
+                Email        = email,
+                PhoneNumber  = phoneNumber,
+                PasswordHash = password  // send as plain text for now; hash server-side ideally
             });
 
             if (response.IsSuccessStatusCode)
@@ -378,9 +382,9 @@
                 await Task.Delay(1500);
                 Nav.NavigateTo("/login");
             }
-            else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+            else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
-                errorMessage = "An account with that email already exists.";
+                errorMessage = await response.Content.ReadAsStringAsync();
             }
             else
             {

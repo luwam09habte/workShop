@@ -1,23 +1,34 @@
+// ServerAPI/Program.cs
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+
+// Register your services
+builder.Services.AddSingleton<ServerAPI.Service.UserService>();
+builder.Services.AddSingleton<ServerAPI.Service.ClothingService>();
+
+// Allow requests from the Blazor WASM app
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("BlazorClient", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:5168",
+                "https://localhost:7125"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
-app.UseHttpsRedirection();
+app.UseCors("BlazorClient"); // must be before UseAuthorization and MapControllers
 
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

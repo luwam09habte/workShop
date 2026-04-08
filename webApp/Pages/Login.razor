@@ -160,10 +160,9 @@
         cursor: pointer;
         position: relative;
         overflow: hidden;
-        transition: background .2s;
+        width: 100%;
         opacity: 0;
         animation: rise .8s cubic-bezier(.16,1,.3,1) .75s forwards;
-        width: 100%;
     }
     .btn-login::after {
         content: '';
@@ -243,22 +242,16 @@
 
             <div class="field-group">
                 <label for="email">Email address</label>
-                <input id="email"
-                       type="email"
-                       autocomplete="email"
+                <input id="email" type="email" autocomplete="email"
                        placeholder="you@example.com"
-                       @bind="email"
-                       @bind:event="oninput" />
+                       @bind="email" @bind:event="oninput" />
             </div>
 
             <div class="field-group">
                 <label for="password">Password</label>
-                <input id="password"
-                       type="password"
-                       autocomplete="current-password"
+                <input id="password" type="password" autocomplete="current-password"
                        placeholder="••••••••"
-                       @bind="password"
-                       @bind:event="oninput" />
+                       @bind="password" @bind:event="oninput" />
             </div>
 
             <div class="field-group" style="animation-delay:.65s">
@@ -278,16 +271,23 @@
 </div>
 
 @code {
-    private string email       = string.Empty;
-    private string password    = string.Empty;
+    private string email        = string.Empty;
+    private string password     = string.Empty;
     private string errorMessage = string.Empty;
-    private bool   isLoading   = false;
+    private bool   isLoading    = false;
 
-    private class UserDto
+    // Matches what UserController.Login expects
+    private class LoginDto
     {
-        public string? Id       { get; set; }
-        public string? Email    { get; set; }
-        public string? Password { get; set; }
+        public string Email        { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty;
+    }
+
+    // Response from a successful login
+    private class LoginResponseDto
+    {
+        public string? Id    { get; set; }
+        public string? Email { get; set; }
     }
 
     private async Task HandleLogin()
@@ -304,33 +304,25 @@
 
         try
         {
-            // Calls GET http://localhost:5168/api/User/{email}
-            // Adjust the route to match your UserController
-            var response = await Http.GetAsync($"api/User/{Uri.EscapeDataString(email)}");
-
-            if (response.StatusCode == System.Net.HttpStatusCode.NotFound || !response.IsSuccessStatusCode)
+            // POST api/User/login — matches [HttpPost("login")] in UserController
+            var response = await Http.PostAsJsonAsync("api/User/login", new LoginDto
             {
-                errorMessage = "No account found with that email address.";
-                return;
+                Email        = email,
+                PasswordHash = password
+            });
+
+            if (response.IsSuccessStatusCode)
+            {
+                Nav.NavigateTo("/");
             }
-
-            var user = await response.Content.ReadFromJsonAsync<UserDto>();
-
-            if (user is null)
+            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                errorMessage = "Invalid email or password.";
+            }
+            else
             {
                 errorMessage = "Something went wrong. Please try again.";
-                return;
             }
-
-            // ⚠️ Replace with a proper hash check once passwords are hashed
-            if (user.Password != password)
-            {
-                errorMessage = "Incorrect password. Please try again.";
-                return;
-            }
-
-            // Success — navigate to home
-            Nav.NavigateTo("/");
         }
         catch (HttpRequestException)
         {
