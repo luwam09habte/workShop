@@ -1,9 +1,9 @@
 namespace webApp.Model;
 
-public class Medlem
+public class Member
 {
     public string Id { get; set; }
-    public string Navn { get; set; }
-    public string MobilNummer { get; set; }
+    public string Name { get; set; }
+    public string PhoneNumber { get; set; }
     public string Email { get; set; }
 }
