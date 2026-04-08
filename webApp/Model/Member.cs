@@ -1,6 +1,6 @@
 namespace webApp.Model;
 
-public class Member
+public class User
 {
     public string Id { get; set; }
     public string Name { get; set; }
