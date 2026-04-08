@@ -19,9 +19,9 @@ public class UserService
     {
         await _users.InsertOneAsync(user);
     }
-
+/*
     public async Task<User> GetUserByUsername(string username)
     {
         return await _users.Find(u => u.Username == username).FirstOrDefaultAsync();
-    }
+    }*/
 }
