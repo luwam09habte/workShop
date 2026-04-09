@@ -4,7 +4,7 @@ namespace Core.Model;
 
 public class Clothing
 { 
-    public string ObjectId Id { get; set; } = ObjectId.GenerateNewId();
+    public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
     public string Type { get; set; }
     public string Size { get; set; }
     public string Color { get; set; }

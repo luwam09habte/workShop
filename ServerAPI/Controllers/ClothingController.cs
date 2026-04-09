@@ -21,18 +21,15 @@ public class ClothingController : ControllerBase
     public async Task<IActionResult> CreateClothing(Clothing item, [FromQuery] string ID)
     {
         if (string.IsNullOrEmpty(item.Type) ||
-             string.IsNullOrEmpty(item.Size) ||
-             string.IsNullOrEmpty(item.Color))
+            string.IsNullOrEmpty(item.Size) ||
+            string.IsNullOrEmpty(item.Color))
         {
             return BadRequest("Alle felter skal være udfyldt");
         }
 
-        // Generér nyt Clothe_id på serveren
-        item.ObjectId = Guid.NewGuid().ToString();
-        
         if (string.IsNullOrEmpty(item.Status))
             item.Status = "available";
-        
+
         item.Owner_id = ID;
 
         await _clothingService.CreateClothing(item);
