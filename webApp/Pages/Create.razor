@@ -1,0 +1,66 @@
+@page "/create"
+@using Core.Model
+@inject HttpClient Http
+
+<h1>Workshop Clothing</h1>
+
+<div class="card">
+    <h2>Upload Clothing</h2>
+
+    <input @bind="newClothing.Type" placeholder="Type" />
+    <input @bind="newClothing.Size" placeholder="Size" />
+    <input @bind="newClothing.Color" placeholder="Color" />
+    <input @bind="ownerId" placeholder="User ID" />
+
+    <br />
+
+    <button @onclick="CreateClothing">Create</button>
+</div>
+
+<div class="card">
+    <h2>Available Clothing</h2>
+
+    <button @onclick="LoadClothes">Load</button>
+
+    @if (clothes == null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <ul>
+            @foreach (var item in clothes)
+            {
+                <li>
+                    @item.Type - @item.Size - @item.Color
+                    <button @onclick="() => Loan(item.ObjectId)">Lån</button>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    private List<Clothing> clothes;
+    private Clothing newClothing = new();
+    private string ownerId;
+
+    private async Task CreateClothing()
+    {
+        await Http.PostAsJsonAsync($"api/clothing/opret?ID={ownerId}", newClothing);
+
+        newClothing = new Clothing();
+        await LoadClothes();
+    }
+
+    private async Task LoadClothes()
+    {
+        clothes = await Http.GetFromJsonAsync<List<Clothing>>("api/clothing/available");
+    }
+
+    private async Task Loan(string id)
+    {
+        await Http.PostAsync($"api/clothing/loan?clothingId={id}&userId={ownerId}", null);
+        await LoadClothes();
+    }
+}

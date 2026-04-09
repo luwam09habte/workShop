@@ -1,3 +1,5 @@
+namespace Core.Model;
+
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 

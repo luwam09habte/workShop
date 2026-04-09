@@ -1,0 +1,40 @@
+@using Core.Model
+@page "/clothingoverview"
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Clothing Overview</h3>
+
+<!-- Knap til at gå til Create-siden -->
+<button @onclick="NavigateToCreate">Opret nyt tøj</button>
+
+<h3>Tilgængeligt tøj</h3>
+
+@if (clothes == null)
+{
+    <p>Loader...</p>
+}
+else
+{
+    <ul>
+        @foreach (var item in clothes)
+        {
+            <li>@item.Type - @item.Size - @item.Color</li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Clothing> clothes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        clothes = await Http.GetFromJsonAsync<List<Clothing>>("api/clothing/available");
+    }
+
+    private void NavigateToCreate()
+    {
+        // Navigerer til Create.razor siden
+        Nav.NavigateTo("/create");
+    }
+}

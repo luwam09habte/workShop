@@ -24,7 +24,7 @@ public class ClothingService
     
     
     public async Task<List<Clothing>> GetAvailableClothes() =>
-        await _clothing.Find(c => c.Status == "available").ToListAsync();
+        await _clothing.Find(c => c.Status.ToLower() == "available").ToListAsync();
 
     public async Task<Clothing> GetClothingById(string id) =>
         await _clothing.Find(c => c.ObjectId == id).FirstOrDefaultAsync();
