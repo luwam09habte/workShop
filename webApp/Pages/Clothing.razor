@@ -1,14 +1,14 @@
 @page "/Clothing"
 @inject HttpClient Http
 
-<PageTitle>Overblik over tilgængelig tøj artikler</PageTitle>
+<PageTitle>Workshop Clothing</PageTitle>
 
 <!DOCTYPE html>
 
-<html lang="da">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Clothing WorkShop</title>
+    <title>WorkShop Clothing</title>
     
 <style>
     body {
@@ -63,7 +63,7 @@
 <body>
 
 <div class="container">
-    <h1> Clothing WorkShop</h1>
+    <h1>WorkShop Clothing</h1>
     
 <!-- Opret -->
 <div class="card">
@@ -139,7 +139,7 @@ async function createClothing() {
         imageStore[created.clothe_id] = base64Image;
     }
 
-    alert("Tøj oprettet!");
+    alert("Registered!");
     loadClothes();
 }
 
@@ -178,7 +178,7 @@ async function loan(id) {
         method: "POST"
     });
 
-    alert("Lånt!");
+    alert("Registered!");
     loadClothes();
 }
 </script>
