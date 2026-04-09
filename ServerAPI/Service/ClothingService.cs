@@ -31,7 +31,7 @@ public class ClothingService
         await _clothing.Find(c => c.Status == "available").ToListAsync();
 
     public async Task<Clothing> GetClothingById(string id) =>
-        await _clothing.Find(c => c.Clothe_id == id).FirstOrDefaultAsync();
+        await _clothing.Find(c => c.ObjectId == id).FirstOrDefaultAsync();
 
     public async Task<bool> LoanClothing(string clothingId, string userId)
     {
@@ -41,7 +41,7 @@ public class ClothingService
         clothing.Status = "loaned";
         clothing.Owner_id = userId;
 
-        var filter = Builders<Clothing>.Filter.Eq(c => c.Clothe_id, clothingId);
+        var filter = Builders<Clothing>.Filter.Eq(c => c.ObjectId, clothingId);
         await _clothing.ReplaceOneAsync(filter, clothing);
         return true;
     }

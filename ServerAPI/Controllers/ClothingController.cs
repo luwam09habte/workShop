@@ -28,7 +28,7 @@ public class ClothingController : ControllerBase
         }
 
         // Generér nyt Clothe_id på serveren
-        item.Clothe_id = Guid.NewGuid().ToString();
+        item.ObjectId = Guid.NewGuid().ToString();
         
         if (string.IsNullOrEmpty(item.Status))
             item.Status = "available";
