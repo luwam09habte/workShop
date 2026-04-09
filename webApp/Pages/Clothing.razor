@@ -1,5 +1,188 @@
 @page "/Clothing"
+@inject HttpClient Http
 
 <PageTitle>Overblik over tilgængelig tøj artikler</PageTitle>
 
+<!DOCTYPE html>
+
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>Clothing WorkShop</title>
+    
+<style>
+    body {
+        font-family: Arial;
+        background-color: #f4f4f4;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: auto;
+    }
+
+    .card {
+        background: white;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+    }
+
+    input, button {
+        margin: 5px;
+        padding: 8px;
+    }
+
+    img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-right: 10px;
+    }
+
+    li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: white;
+        margin: 8px 0;
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+    .item-info {
+        display: flex;
+        align-items: center;
+    }
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+    <h1>👗 Tøj Udlånsklub</h1>
+    
+<!-- Opret -->
+<div class="card">
+    <h2>Opret tøj</h2>
+
+    <input id="type" placeholder="Type">
+    <input id="size" placeholder="Størrelse">
+    <input id="color" placeholder="Farve">
+    <input id="ownerId" placeholder="User ID">
+
+    <br>
+    <input type="file" id="imageInput">
+
+    <br>
+    <button onclick="createClothing()">Opret</button>
+</div>
+
+<!-- Liste -->
+<div class="card">
+    <h2>Tilgængeligt tøj</h2>
+    <button onclick="loadClothes()">Hent</button>
+
+    <ul id="clothesList"></ul>
+</div>
+
+</div>
+
+<script>
+const API = "https://localhost:5001/api/clothing";
+
+// Gem billeder midlertidigt (key = clothingId)
+let imageStore = {};
+
+// Konverter billede til base64
+function toBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
+// Opret
+async function createClothing() {
+    const file = document.getElementById("imageInput").files[0];
+
+    let base64Image = null;
+    if (file) {
+        base64Image = await toBase64(file);
+    }
+
+    const item = {
+        type: document.getElementById("type").value,
+        size: document.getElementById("size").value,
+        color: document.getElementById("color").value
+    };
+
+    const ownerId = document.getElementById("ownerId").value;
+
+    const res = await fetch(`${API}/opret?ID=${ownerId}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(item)
+    });
+
+    const created = await res.json();
+
+    // gem billede lokalt
+    if (base64Image) {
+        imageStore[created.clothe_id] = base64Image;
+    }
+
+    alert("Tøj oprettet!");
+    loadClothes();
+}
+
+// Hent
+async function loadClothes() {
+    const res = await fetch(`${API}/available`);
+    const clothes = await res.json();
+
+    const list = document.getElementById("clothesList");
+    list.innerHTML = "";
+
+    clothes.forEach(c => {
+        const li = document.createElement("li");
+
+        const imgSrc = imageStore[c.clothe_id] || "";
+
+        li.innerHTML = `
+            <div class="item-info">
+                <img src="${imgSrc}" />
+                <span>
+                    ${c.type} - ${c.size} - ${c.color}
+                </span>
+            </div>
+            <button onclick="loan('${c.clothe_id}')">Lån</button>
+        `;
+
+        list.appendChild(li);
+    });
+}
+
+// Lån
+async function loan(id) {
+    const userId = prompt("User ID:");
+
+    await fetch(`${API}/loan?clothingId=${id}&userId=${userId}`, {
+        method: "POST"
+    });
+
+    alert("Lånt!");
+    loadClothes();
+}
+</script>
+
+</body>
+</html>
 
