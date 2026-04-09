@@ -8,4 +8,5 @@ public class Clothing
     public string Color { get; set; }
     public string Status { get; set; }
     public string Owner_id { get; set; }
+    public string ImageUrl { get; set; }
 }
