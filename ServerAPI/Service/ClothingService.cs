@@ -21,10 +21,6 @@ public class ClothingService
     {
         await _clothing.InsertOneAsync(item);
     }
-
-    
-    
-    
     
     
     public async Task<List<Clothing>> GetAvailableClothes() =>
