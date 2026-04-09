@@ -1,7 +1,7 @@
 namespace Core.Model;
 
 public class Clothing
-{
+{ 
     public string Clothe_id { get; set; }
     public string Type { get; set; }
     public string Size { get; set; }
